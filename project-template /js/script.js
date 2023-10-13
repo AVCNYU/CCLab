@@ -4,6 +4,9 @@ let spiralRadius = 50; // Adjust this value for the desired spiral radius
 let isMousePressed = false;
 let mouseReleasePosition;
 
+
+//small change 
+
 function setup() {
     createCanvas(800, 800);
     colorMode(HSB);
