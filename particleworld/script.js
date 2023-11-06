@@ -1,60 +1,73 @@
-// CCLab Mini Project - 9.R Particles Template
-
-let NUM_OF_PARTICLES = 3; // Decide the initial number of particles.
-
-let particles = [];
+let clouds = [];
+let birds = [];
 
 function setup() {
-  let canvas = createCanvas(600, 600);
-  canvas.parent("canvasWrapper");
-
-  // generate particles
-  for (let i = 0; i < NUM_OF_PARTICLES; i++) {
-    particles[i] = new Particle(random(width), random(height));
+  createCanvas(800, 400);
+  for (let i = 0; i < 3; i++) {
+    clouds.push(new Cloud());
+  }
+  for (let i = 0; i < 5; i++) {
+    birds.push(new Bird());
   }
 }
 
 function draw() {
-  background(50);
+  background(200, 240, 255);
 
-  // update and display
-  for (let i = 0; i < particles.length; i++) {
-    let p = particles[i];
-    p.update();
-    p.display();
+  for (let cloud of clouds) {
+    cloud.move();
+    cloud.display();
+  }
+
+  for (let bird of birds) {
+    bird.move();
+    bird.display();
   }
 }
 
-class Particle {
-  // constructor function
-  constructor(startX, startY) {
-    // properties: particle's characteristics
-    this.x = startX;
-    this.y = startY;
-    this.dia = 30;
+class Cloud {
+  constructor() {
+    this.x = random(width);
+    this.y = random(100, 200);
+    this.speed = random(1, 2);
   }
-  // methods (functions): particle's behaviors
-  update() {
-    // (add) 
+
+  move() {
+    this.x += this.speed;
+    if (this.x > width) {
+      this.x = -200;
+    }
   }
+
   display() {
-    // particle's appearance
-    push();
-    translate(this.x, this.y);
-
-    circle(0, 0, this.dia);
-
-    pop();
+    fill(255);
+    noStroke();
+    ellipse(this.x, this.y, 80, 40);
+    ellipse(this.x + 20, this.y - 20, 60, 30);
+    ellipse(this.x + 40, this.y, 80, 40);
   }
 }
 
-class spiderWeb {
-
-
-  constructor(startX, startY) {
-    this.x = startX;
-    this.y = startY;
-    this.dia = 30;
+class Bird {
+  constructor() {
+    this.x = random(width);
+    this.y = random(100, 250);
+    this.speed = random(2, 4);
   }
 
+  move() {
+    this.x += this.speed;
+    if (this.x > width) {
+      this.x = -20;
+      this.y = random(100, 250);
+    }
+  }
+
+  display() {
+    fill(0);
+    stroke(0);
+    triangle(this.x, this.y, this.x - 10, this.y + 10, this.x + 10, this.y + 10);
+    line(this.x, this.y, this.x, this.y + 20);
+  }
 }
+
