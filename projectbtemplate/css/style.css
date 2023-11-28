@@ -159,6 +159,11 @@ body {
   right: 0;
 }
 
+#scale-down {
+
+  scale: 50%;
+}
+
 /* .left-box {
   position: fixed;
   left: 0;
