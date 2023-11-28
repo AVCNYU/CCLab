@@ -1,0 +1,188 @@
+html,
+body {
+  height: 100%;
+}
+
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin: 0;
+  padding: 0;
+}
+
+
+.container-landing-page {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.main-container {
+  background-color: lightgray;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.interface-container {
+  background-color: gray;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flipcard {
+  background-color: transparent;
+  width: 300px;
+  height: 200px;
+  border: 1px solid #f1f1f1;
+  perspective: 1000px;
+}
+
+.flipcardinner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
+}
+
+.flipcard:hover .flipcardinner {
+  transform: rotateY(180deg);
+}
+
+.flipcardfront,
+.flipcardback {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.flipcardfront {
+  background-color: #bbb;
+  color: black;
+}
+
+.flipcardback {
+  background-color: dodgerblue;
+  color: white;
+  transform: rotateY(180deg);
+}
+
+/*-------------------------------------*/
+/*-------------------------------------*/
+
+.flipcard-right {
+  position: fixed;
+  right: 0;
+  background-color: transparent;
+  width: 300px;
+  height: 200px;
+  border: 1px solid #f1f1f1;
+  perspective: 1000px;
+}
+
+.flipcardinner-right {
+  position: fixed;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
+}
+
+.flipcard-right:hover .flipcardinner-right {
+  transform: rotateY(180deg);
+}
+
+.flipcardfront-right,
+.flipcardback-right {
+  position: fixed;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.flipcardfront-right {
+  position: fixed;
+  right: right;
+  background-color: #bbb;
+  color: black;
+}
+
+.flipcardback-right {
+  position: fixed;
+  right: right;
+  background-color: dodgerblue;
+  color: white;
+  transform: rotateY(180deg);
+}
+
+
+
+#keep-bottom {
+  position: fixed;
+  bottom: 0;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+#keep-left {
+  width: 100%;
+  position: fixed;
+  left: 0;
+}
+
+#keep-right {
+  width: 100%;
+  position: fixed;
+  right: 0;
+}
+
+/* .left-box {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 300px;
+  height: 200px;
+  background-color: white;
+}
+
+.right-box {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 300px;
+  height: 200px;
+  background-color: black;
+} */
+
+/* FLEXBOX PROPERTIES */
+/* 
+flex-direction
+flex-wrap
+flex-flow
+justify-content
+align-items
+align-content
+*/
