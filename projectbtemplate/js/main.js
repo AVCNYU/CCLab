@@ -133,4 +133,6 @@ class Particle {
   changeColor() {
     this.color = color(random(255), random(255), random(255));
   }
+
+  /*key is pressed  */
 }
