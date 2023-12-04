@@ -1,138 +1,266 @@
-let bgColor;
-function setup() {
-  let canvas = createCanvas(1000, 600);
-  canvas.parent('canvas-container');
+let players = [];
+let finishLine;
+let maxSpeed = 10;
+let recoveryTime = 3000; // 3 seconds recovery time
+let keys = ['q', 'z', 'p', 'm'];
+let meters = [];
+let winner = null;
+let restartButton;
+let startButton;
+let gameStarted = false;
+let startTime;
+let carImages = [];
+let carSound;
+let crashSound;
 
-  bgColor = color(255);
-  background(bgColor);
+
+function preload() {
+  // Load car images
+  // Load sound files
+  carSound = loadSound('assets/car_sound.wav'); // Adjust the path and file names
+  crashSound = loadSound('assets/crash_sound.wav'); // Adjust the path and file names
+  for (let i = 0; i < keys.length; i++) {
+    carImages[i] = loadImage('assets/car_image_' + i + '.png'); // Adjust the path and file names accordingly
+  }
+}
+
+function setup() {
+  createCanvas(windowWidth, 650);
+
+  // Create players and meters
+  for (let i = 0; i < keys.length; i++) {
+    players.push(new Player(100, 100 + i * 150, color(random(255), random(255), random(255)), keys[i]));
+    meters.push(new Meter(20, 100 + i * 150, keys[i]));
+  }
+
+  // Create finish line
+  finishLine = width - 50;
+
+  // Create restart button
+  restartButton = createButton('Restart');
+  restartButton.position(width / 2 - 40, height / 2);
+  restartButton.mousePressed(restartGame);
+  restartButton.hide();
+
+  // Create start button
+  startButton = createButton('Start');
+  startButton.position(width / 2 - 40, height / 2 + 50);
+  startButton.mousePressed(startGame);
 }
 
 function draw() {
-  background(bgColor);
-}
+  // Set background color to a greenish tone
+  background(100, 200, 100);
 
-function changeBackground() {
-  bgColor = color(random(255), random(255), random(255));
-}
-let particles = [];
-let angle = 0;
-let spiralRadius = 50;
-let isMousePressed = false;
-let mouseReleasePosition;
-let sourcePosition;
-let instructions = "WASD to move source\nClick to scatter";
+  // Draw the race track
+  fill(150); // Set fill color to a grayish tone
+  rect(100, 50, width - 200, height - 100); // Adjust the rectangle dimensions as needed
 
-function setup() {
-  let canvas = createCanvas(1000, 600);
-  canvas.parent('canvas-container');
-  colorMode(RGB);
-  sourcePosition = createVector(width / 2, height / 2);
-  textSize(16);
-}
+  // Draw center line
+  stroke(255); // Set stroke color to white
+  strokeWeight(4);
+  line(width / 2, 50, width / 2, height - 50);
 
-function draw() {
+  // Draw checkered finish line
+  for (let i = 0; i < height; i += 20) {
+    if (i % 40 === 0) {
+      fill(255);
+    } else {
+      fill(0);
+    }
+    rect(width - 50, i, 20, 20);
+  }
 
-  if (isMousePressed) {
-    background(255);
+  // Display players and meters
+  for (let i = 0; i < players.length; i++) {
+    players[i].update();
+    players[i].display();
+    meters[i].display(players[i].recovering);
+  }
+
+  // Check for winner
+  for (let i = 0; i < players.length; i++) {
+    if (players[i].x > width - 50 && winner === null) {
+      winner = players[i];
+      restartButton.show();
+    }
+  }
+
+  // Display winning player and restart button on the canvas
+  if (winner !== null) {
+    fill(0);
+    textSize(32);
+    textAlign(CENTER, CENTER);
+    text("Player " + winner.key.toUpperCase() + " wins!", width / 2, height / 2 - 50);
+    restartButton.show();
+  }
+
+  // Display start button if the game has not started
+  if (!gameStarted) {
+    startButton.show();
   } else {
-    background(0);
+    startButton.hide();
   }
 
-  // Move the source of particles using WASD keys
-  if (keyIsDown(87)) { // W key, move up
-    sourcePosition.y -= 1;
+  // Display countdown timer
+  if (gameStarted && millis() - startTime < 3000) {
+    fill(0);
+    textSize(32);
+    textAlign(CENTER, CENTER);
+    let countdown = ceil((3000 - (millis() - startTime)) / 1000);
+    text(countdown, width / 2, height / 2);
   }
-  if (keyIsDown(83)) { // S key, move down
-    sourcePosition.y += 1;
-  }
-  if (keyIsDown(65)) { // A key, move left
-    sourcePosition.x -= 1;
-  }
-  if (keyIsDown(68)) { // D key, move right
-    sourcePosition.x += 1;
-  }
-
-  // Update the angle of the source to create a spiral effect
-  angle += 0.02;
-
-  let x = sourcePosition.x + spiralRadius * cos(angle);
-  let y = sourcePosition.y + spiralRadius * sin(angle);
-  particles.push(new Particle(x, y));
-
-  for (let i = particles.length - 1; i >= 0; i--) {
-    let p = particles[i];
-    p.update();
-    p.display();
-    if (p.isOffscreen()) {
-      particles.splice(i, 1);
-    }
-  }
-
-  if (!mouseIsPressed && isMousePressed) {
-    for (let i = 0; i < particles.length; i++) {
-      let p = particles[i];
-      p.changeColor();
-      p.pushAway(mouseReleasePosition);
-    }
-    isMousePressed = false;
-  }
-
-  fill(255);
-  text(instructions, 20, 20);
 }
 
-function mouseReleased() {
-  isMousePressed = true;
-  mouseReleasePosition = createVector(mouseX, mouseY);
+function restartGame() {
+  winner = null;
+  restartButton.hide();
+  gameStarted = false;
+  startButton.show();
+  for (let i = 0; i < players.length; i++) {
+    players[i].x = 100;
+    players[i].speed = 0;
+    players[i].recovering = false;
+  }
+  loop();
 }
 
 function keyPressed() {
-  if (key === ' ') {
-    // Reset the source position to the center of the canvas
-    sourcePosition = createVector(width / 2, height / 2);
+  // Check if a valid key is pressed
+  if (keys.includes(key) && gameStarted) {
+    // Find the player corresponding to the pressed key and accelerate
+    let index = keys.indexOf(key);
+    players[index].accelerate();
   }
 }
 
-function keyReleased() {
-  if (key === ' ') {
-    isMousePressed = false;
+function startGame() {
+  gameStarted = true;
+  startTime = millis();
+  startButton.hide();
+}
+
+class Player {
+  constructor(x, y, col, key) {
+    this.x = x;
+    this.y = y;
+    this.col = col;
+    this.speed = 0;
+    this.recovering = false;
+    this.recoveryStart = 0;
+    this.key = key;
+    this.particles = [];
+
+  }
+
+  accelerate() {
+    // Increase speed, but check for spinning out of control
+    if (!this.recovering) {
+      this.speed += 2;
+      if (this.speed > maxSpeed) {
+        this.speed = 0; // Spin out of control
+        this.recovering = true;
+        this.recoveryStart = millis();
+
+        // Generate more smoke particles during a crash
+        for (let i = 0; i < 30; i++) {
+          this.particles.push(new Particle(this.x, this.y));
+        }
+
+        // Play the crash sound
+        crashSound.play();
+      } else {
+        // Play the car sound when accelerating
+        carSound.play();
+      }
+    }
+  }
+
+  display() {
+    // Display particles
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      this.particles[i].update();
+      this.particles[i].display();
+      if (this.particles[i].isFinished()) {
+        this.particles.splice(i, 1);
+      }
+    }
+
+    // Display the car image
+    image(carImages[keys.indexOf(this.key)], this.x - 10, this.y - 10, 200, 50);
+  }
+
+
+  update() {
+    if (this.recovering) {
+      // Check if recovery time has passed
+      if (millis() - this.recoveryStart > recoveryTime) {
+        this.recovering = false;
+        this.speed = 0; // Reset speed after recovery
+      }
+    } else {
+      // Move player based on speed
+      this.x += this.speed;
+
+      // Check if player has crossed the finish line
+      if (this.x > finishLine) {
+        console.log('Player ' + this.key + ' wins!');
+        noLoop(); // Stop the game
+      }
+    }
+  }
+}
+class Meter {
+  constructor(x, y, key) {
+    this.x = x;
+    this.y = y;
+    this.key = key;
+  }
+
+  display(isSpunOut) {
+    // Display meter background
+    fill(200);
+    rect(this.x, this.y - 10, 50, 20);
+
+    if (isSpunOut) {
+      fill(255, 0, 0);
+    } else {
+      fill(0, 255, 0);
+    }
+
+    // Adjust the meter fill based on recovery time
+    let recoveryProgress = constrain((millis() - players[keys.indexOf(this.key)].recoveryStart) / recoveryTime, 0, 1);
+    rect(this.x, this.y - 10, 50 * recoveryProgress, 20);
   }
 }
 
 class Particle {
   constructor(x, y) {
-    this.pos = createVector(x, y);
-    this.vel = p5.Vector.random2D();
-    this.color = color(255);
-    this.size = random(1.2, 2.2) ** 3;
+    this.x = x;
+    this.y = y;
+    this.velocity = createVector(random(-1, 1), random(-2, 0));
+    this.alpha = 255;
+    this.lifespan = 200; // Adjust the lifespan of the particle
   }
 
   update() {
-    this.pos.add(this.vel);
-    this.vel.mult(0.999);
+    this.x += this.velocity.x;
+    this.y += this.velocity.y;
+    this.alpha -= 2;
+    this.lifespan--;
+
+    if (this.lifespan <= 0) {
+      this.alpha = 0;
+    }
   }
 
   display() {
     noStroke();
-    fill(this.color);
-    ellipse(this.pos.x, this.pos.y, this.size, this.size);
-    this.color.setAlpha(map(this.pos.y, height / 2, height, 100, 0));
+    fill(100, 100, 100, this.alpha);
+    ellipse(this.x, this.y, 10, 10);
   }
 
-  isOffscreen() {
-    return this.pos.y > height;
+  isFinished() {
+    return this.alpha <= 0;
   }
-
-  pushAway(target) {
-    let direction = p5.Vector.sub(this.pos, target);
-    direction.normalize();
-    direction.mult(5);
-    this.vel.add(direction);
-  }
-
-  changeColor() {
-    this.color = color(random(255), random(255), random(255));
-  }
-
-  /*key is pressed  */
 }

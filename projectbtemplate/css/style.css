@@ -16,6 +16,13 @@ p {
 }
 
 
+
+.linktext {
+  text-align: center;
+  text-decoration: solid;
+  text-shadow: #bbb;
+}
+
 .container-landing-page {
   width: 100%;
   height: 100%;
@@ -142,6 +149,12 @@ p {
   bottom: 0;
 }
 
+#keep-top {
+  position: fixed;
+  top: 0;
+
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -164,7 +177,65 @@ body {
   scale: 50%;
 }
 
+#race-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  /* Places the race track behind other elements */
+}
 
+#race-track img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Ensures the image covers the entire container */
+}
+
+.main-container,
+.interface-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Enlarging text and centering on flip cards */
+.flipcardfront,
+.flipcardback,
+.flipcardfront-right,
+.flipcardback-right {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2em;
+  /* Adjust the font size as needed */
+}
+
+/* Centering flip cards */
+.flipcard,
+.flipcard-right {
+  margin: 0 10px;
+  /* Adjust the margin as needed */
+}
+
+/* Enlarging the text in #keep-top */
+#keep-top {
+
+  position: fixed;
+  top: 0;
+
+}
+
+.textcentered {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  font-size: xx-large;
+}
 
 /* FLEXBOX PROPERTIES */
 /* 
