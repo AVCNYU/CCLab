@@ -1,7 +1,7 @@
 let players = [];
 let finishLine;
 let maxSpeed = 10;
-let recoveryTime = 3000; // 3 seconds recovery time
+let recoveryTime = 3000;
 let keys = ['q', 'z', 'p', 'm'];
 let meters = [];
 let winner = null;
@@ -15,53 +15,43 @@ let crashSound;
 
 
 function preload() {
-  // Load car images
-  // Load sound files
-  carSound = loadSound('assets/car_sound.wav'); // Adjust the path and file names
-  crashSound = loadSound('assets/crash_sound.wav'); // Adjust the path and file names
+
+  carSound = loadSound('assets/car_sound.wav');
+  crashSound = loadSound('assets/crash_sound.wav');
   for (let i = 0; i < keys.length; i++) {
-    carImages[i] = loadImage('assets/car_image_' + i + '.png'); // Adjust the path and file names accordingly
+    carImages[i] = loadImage('assets/car_image_' + i + '.png');
   }
 }
 
 function setup() {
   createCanvas(windowWidth, 650);
 
-  // Create players and meters
   for (let i = 0; i < keys.length; i++) {
     players.push(new Player(100, 100 + i * 150, color(random(255), random(255), random(255)), keys[i]));
     meters.push(new Meter(20, 100 + i * 150, keys[i]));
   }
 
-  // Create finish line
   finishLine = width - 50;
 
-  // Create restart button
   restartButton = createButton('Restart');
   restartButton.position(width / 2 - 40, height / 2);
   restartButton.mousePressed(restartGame);
   restartButton.hide();
 
-  // Create start button
   startButton = createButton('Start');
   startButton.position(width / 2 - 40, height / 2 + 50);
   startButton.mousePressed(startGame);
 }
 
 function draw() {
-  // Set background color to a greenish tone
   background(100, 200, 100);
 
-  // Draw the race track
-  fill(150); // Set fill color to a grayish tone
-  rect(100, 50, width - 200, height - 100); // Adjust the rectangle dimensions as needed
-
-  // Draw center line
-  stroke(255); // Set stroke color to white
+  fill(150);
+  rect(100, 50, width - 200, height - 100);
+  stroke(255);
   strokeWeight(4);
   line(width / 2, 50, width / 2, height - 50);
 
-  // Draw checkered finish line
   for (let i = 0; i < height; i += 20) {
     if (i % 40 === 0) {
       fill(255);
@@ -71,14 +61,12 @@ function draw() {
     rect(width - 50, i, 20, 20);
   }
 
-  // Display players and meters
   for (let i = 0; i < players.length; i++) {
     players[i].update();
     players[i].display();
     meters[i].display(players[i].recovering);
   }
 
-  // Check for winner
   for (let i = 0; i < players.length; i++) {
     if (players[i].x > width - 50 && winner === null) {
       winner = players[i];
@@ -86,7 +74,6 @@ function draw() {
     }
   }
 
-  // Display winning player and restart button on the canvas
   if (winner !== null) {
     fill(0);
     textSize(32);
@@ -95,14 +82,12 @@ function draw() {
     restartButton.show();
   }
 
-  // Display start button if the game has not started
   if (!gameStarted) {
     startButton.show();
   } else {
     startButton.hide();
   }
 
-  // Display countdown timer
   if (gameStarted && millis() - startTime < 3000) {
     fill(0);
     textSize(32);
@@ -126,9 +111,7 @@ function restartGame() {
 }
 
 function keyPressed() {
-  // Check if a valid key is pressed
   if (keys.includes(key) && gameStarted) {
-    // Find the player corresponding to the pressed key and accelerate
     let index = keys.indexOf(key);
     players[index].accelerate();
   }
@@ -154,30 +137,25 @@ class Player {
   }
 
   accelerate() {
-    // Increase speed, but check for spinning out of control
     if (!this.recovering) {
       this.speed += 2;
       if (this.speed > maxSpeed) {
-        this.speed = 0; // Spin out of control
+        this.speed = 0;
         this.recovering = true;
         this.recoveryStart = millis();
 
-        // Generate more smoke particles during a crash
         for (let i = 0; i < 30; i++) {
           this.particles.push(new Particle(this.x, this.y));
         }
 
-        // Play the crash sound
         crashSound.play();
       } else {
-        // Play the car sound when accelerating
         carSound.play();
       }
     }
   }
 
   display() {
-    // Display particles
     for (let i = this.particles.length - 1; i >= 0; i--) {
       this.particles[i].update();
       this.particles[i].display();
@@ -186,23 +164,19 @@ class Player {
       }
     }
 
-    // Display the car image
     image(carImages[keys.indexOf(this.key)], this.x - 10, this.y - 10, 200, 50);
   }
 
 
   update() {
     if (this.recovering) {
-      // Check if recovery time has passed
       if (millis() - this.recoveryStart > recoveryTime) {
         this.recovering = false;
-        this.speed = 0; // Reset speed after recovery
+        this.speed = 0;
       }
     } else {
-      // Move player based on speed
       this.x += this.speed;
 
-      // Check if player has crossed the finish line
       if (this.x > finishLine) {
         console.log('Player ' + this.key + ' wins!');
         noLoop(); // Stop the game
@@ -218,7 +192,6 @@ class Meter {
   }
 
   display(isSpunOut) {
-    // Display meter background
     fill(200);
     rect(this.x, this.y - 10, 50, 20);
 
@@ -228,7 +201,6 @@ class Meter {
       fill(0, 255, 0);
     }
 
-    // Adjust the meter fill based on recovery time
     let recoveryProgress = constrain((millis() - players[keys.indexOf(this.key)].recoveryStart) / recoveryTime, 0, 1);
     rect(this.x, this.y - 10, 50 * recoveryProgress, 20);
   }
@@ -240,7 +212,7 @@ class Particle {
     this.y = y;
     this.velocity = createVector(random(-1, 1), random(-2, 0));
     this.alpha = 255;
-    this.lifespan = 200; // Adjust the lifespan of the particle
+    this.lifespan = 200;
   }
 
   update() {
